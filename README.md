@@ -99,7 +99,8 @@ Generate a complete storyboard with images.
 {
   "initial_input": "A young wizard discovers a mysterious book in an ancient library",
   "randomness_level": 0.7,
-  "num_scenes": 5
+  "num_scenes": 5,
+  "input_type": "text"  // or "image" for base64 image input
 }
 ```
 
@@ -110,15 +111,60 @@ Generate a complete storyboard with images.
     {
       "scene_number": 1,
       "text_description": "A young wizard with flowing robes stands in a dimly lit library, reaching for a dusty tome on a high shelf.",
-      "image_url": "http://localhost:8188/view?filename=ComfyUI_00001_.png&subfolder=&type="
+      "image_url": "/outputs/abc123.png"
     }
   ]
 }
 ```
 
+### POST /upload-image
+
+Upload an image file and get its base64 representation.
+
+**Request**: Multipart form data with `file` field
+
+**Response**:
+```json
+{
+  "base64": "data:image/png;base64,iVBORw0KG...",
+  "filename": "image.png",
+  "size": [width, height]
+}
+```
+
+### POST /save-storyboard
+
+Save a generated storyboard for later retrieval.
+
+**Request Body**: StoryboardResponse object
+
+**Response**:
+```json
+{
+  "storyboard_id": "uuid-string"
+}
+```
+
+### GET /storyboard/{storyboard_id}
+
+Retrieve a saved storyboard by ID.
+
+### WebSocket /ws
+
+Connect to receive real-time progress updates during storyboard generation.
+
+**Message Types**:
+- `progress`: Scene generation progress
+- `scene_complete`: Individual scene completion
+- `error`: Error messages
+
 ### GET /health
 
 Health check endpoint.
+
+### GET /outputs/{filename}
+
+Serve generated images from the outputs directory.
 
 ## Environment Variables
 
@@ -156,10 +202,17 @@ The application logs important events. Check the console output for detailed err
 ```
 ComfyStory/
 ├── main.py              # FastAPI application
+├── config.py            # Configuration management
+├── comfyui_workflows.py # ComfyUI workflow templates
+├── utils/               # Utility modules
+│   ├── __init__.py
+│   └── image_utils.py   # Image processing utilities
+├── test_api.py          # API test script
 ├── requirements.txt     # Python dependencies
 ├── .env                 # Environment variables (create from env.example)
 ├── env.example          # Example environment file
 ├── .gitignore          # Git ignore rules
+├── outputs/             # Generated images directory
 └── README.md           # This file
 ```
 
